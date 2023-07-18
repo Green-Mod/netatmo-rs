@@ -1,5 +1,4 @@
 use crate::errors::{NetatmoError, Result};
-use authenticate::{Scope, Token};
 use get_home_status::HomeStatus;
 use get_homes_data::HomesData;
 use get_measure::Measure;
@@ -10,67 +9,30 @@ use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-pub mod authenticate;
 pub mod get_home_status;
 pub mod get_homes_data;
 pub mod get_measure;
 pub mod get_station_data;
 pub mod set_room_thermpoint;
 
-#[derive(Debug, Clone)]
-pub struct ClientCredentials {
-    pub client_id: String,
-    pub client_secret: String,
-}
-
 pub struct NetatmoClient {}
 
 impl NetatmoClient {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(client_credentials: ClientCredentials) -> UnauthenticatedClient {
-        UnauthenticatedClient {
-            client_credentials,
-            http: Client::new(),
-        }
-    }
-
-    pub fn with_token(token: Token) -> AuthenticatedClient {
+    pub fn with_token(access_token: String) -> AuthenticatedClient {
         AuthenticatedClient {
-            token,
+            token: access_token,
             http: Client::new(),
         }
-    }
-}
-
-#[derive(Debug)]
-pub struct UnauthenticatedClient {
-    client_credentials: ClientCredentials,
-    http: Client,
-}
-
-impl UnauthenticatedClient {
-    pub async fn authenticate(self, username: &str, password: &str, scopes: &[Scope]) -> Result<AuthenticatedClient> {
-        authenticate::get_token(&self, username, password, scopes)
-            .await
-            .map(|token| AuthenticatedClient { token, http: self.http })
-            .map_err(|_| NetatmoError::AuthenticationFailed)
-    }
-
-    pub async fn call<T>(&self, name: &'static str, url: &str, params: &HashMap<String, String>) -> Result<T>
-    where
-        T: DeserializeOwned,
-    {
-        api_call(name, &self.http, url, params).await
     }
 }
 
 pub struct AuthenticatedClient {
-    token: Token,
+    token: String,
     http: Client,
 }
 
 impl AuthenticatedClient {
-    pub fn token(&self) -> &Token {
+    pub fn token(&self) -> &String {
         &self.token
     }
 
@@ -78,7 +40,7 @@ impl AuthenticatedClient {
     where
         T: DeserializeOwned,
     {
-        params.insert("access_token".to_string(), self.token.access_token.clone());
+        params.insert("access_token".to_string(), self.token.clone());
         api_call(name, &self.http, url, params).await
     }
 }

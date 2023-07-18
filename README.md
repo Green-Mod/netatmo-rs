@@ -1,20 +1,18 @@
 # netatmo-rs
 
-![CI](https://github.com/lukaspustina/netatmo-rs/workflows/CI/badge.svg) [![GitHub release](https://img.shields.io/github/release/lukaspustina/netatmo-rs.svg)](https://github.com/lukaspustina/netatmo-rs/releases) [![](https://img.shields.io/crates/v/netatmo-rs.svg)](https://crates.io/crates/netatmo-rs) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg?label=License)](./LICENSE)
-
-`netatmo-rs` is a simple [Rust](https://rust-lang.org) library to talk to [Netatmo's API](https://dev.netatmo.com/resources/technical/introduction).
-
-## Changelog
-
-Please see the [CHANGELOG](CHANGELOG.md) for a release history.
+This repo is the fork of [`netatmo-rs`](https://github.com/lukaspustina/netatmo-rs), which is a simple [Rust](https://rust-lang.org) library to talk to [Netatmo's API](https://dev.netatmo.com/resources/technical/introduction).
 
 
-## Installation
+## So why the fork?
 
-### Create Netatmo App
+The original library is not maintained anymore, and I needed to add some features to it. Also I revamped the code to use the latest Rust features and libraries.
 
-1. Create a new App for your personal Netatmo account at the [Create an App](https://dev.netatmo.com/myaccount/createanapp) page.
-2. Save client id and client secret.
+This fork has the following changes:
+1. Uses `thiserror` crate for error handling.
+2. Uses `reqwest`'s async client for making requests.
+3. Drops the support to [Client credentials grant type](https://dev.netatmo.com/apidocumentation/oauth#client-credential), which is not supported by Netatmo anymore.
+
+This library assumes that the user already has an Access Token for the Netatmo API. If you don't have one, you can get it by following the steps [here](https://dev.netatmo.com/apidocumentation/oauth#authorization-code).
 
 
 ## Development
@@ -22,22 +20,9 @@ Please see the [CHANGELOG](CHANGELOG.md) for a release history.
 ### Run Examples
 
 ```bash
-NETATMO_CLIENT_ID=xxxx NETATMO_CLIENT_SECRET=xxxx NETATMO_USERNAME=xxxx NETATMO_PASSWORD=xxxx NETATMO_DEVICE_ID=xxxx cargo run --example get_station_data
-```
-
-## Postcardware
-
-You're free to use `netatmo-rs`. If you find it useful, I would highly appreciate you sending me a postcard from your hometown mentioning how you use `netatmo-rs`. My work address is
-
-```
-Lukas Pustina
-CenterDevice GmbH
-Rheinwerkallee 3
-53227 Bonn
-Germany
+NETATMO_ACCESS_TOKEN=xxxx NETATMO_DEVICE_ID=xxxx cargo run --example get_station_data
 ```
 
 ## Todos
 
 1. Semantic transformation of results -> use enums, timezone etc instead of Strings and int values.
-
