@@ -36,7 +36,7 @@ impl AuthenticatedClient {
         &self.token
     }
 
-    pub async fn call<'a, T>(&self, name: &'static str, url: &str, params: &mut HashMap<String, String>) -> Result<T>
+    pub async fn call<T>(&self, name: &str, url: &str, params: &mut HashMap<String, String>) -> Result<T>
     where
         T: DeserializeOwned,
     {
@@ -45,7 +45,7 @@ impl AuthenticatedClient {
     }
 }
 
-async fn api_call<T>(name: &'static str, http: &Client, url: &str, params: &HashMap<String, String>) -> Result<T>
+async fn api_call<T>(name: &str, http: &Client, url: &str, params: &HashMap<String, String>) -> Result<T>
 where
     T: DeserializeOwned,
 {
@@ -56,7 +56,7 @@ where
         .await
         .map_err(|_| NetatmoError::FailedToSendRequest)?;
 
-    let res = general_err_handler(res, name, StatusCode::OK).await?;
+    let res = general_err_handler(res, name.to_string(), StatusCode::OK).await?;
 
     let status = res.status();
     let body = res.text().await.map_err(|_| NetatmoError::FailedToReadResponse)?;
@@ -76,7 +76,7 @@ struct ApiErrorDetails {
     message: String,
 }
 
-async fn general_err_handler(response: Response, name: &'static str, expected_status: StatusCode) -> Result<Response> {
+async fn general_err_handler(response: Response, name: String, expected_status: StatusCode) -> Result<Response> {
     match response.status() {
         code if code == expected_status => Ok(response),
         code @ StatusCode::BAD_REQUEST
@@ -86,11 +86,11 @@ async fn general_err_handler(response: Response, name: &'static str, expected_st
         | code @ StatusCode::NOT_ACCEPTABLE
         | code @ StatusCode::INTERNAL_SERVER_ERROR => {
             let body = response.text().await.map_err(|_| NetatmoError::UnknownApiCallFailure {
-                name,
+                name: name.clone(),
                 status_code: code.as_u16(),
             })?;
             let err: ApiError = serde_json::from_str(&body).map_err(|_| NetatmoError::UnknownApiCallFailure {
-                name,
+                name: name.clone(),
                 status_code: code.as_u16(),
             })?;
             Err(NetatmoError::ApiCallFailed {

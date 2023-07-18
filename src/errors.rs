@@ -16,14 +16,10 @@ pub enum NetatmoError {
     AuthenticationFailed,
 
     #[error("API call '{name}' failed with code {code} because {msg}")]
-    ApiCallFailed {
-        name: &'static str,
-        code: isize,
-        msg: String,
-    },
+    ApiCallFailed { name: String, code: isize, msg: String },
 
     #[error("API call '{name}' failed for unknown reason with status code {status_code}")]
-    UnknownApiCallFailure { name: &'static str, status_code: u16 },
+    UnknownApiCallFailure { name: String, status_code: u16 },
 }
 
 pub type Result<T> = ::std::result::Result<T, NetatmoError>;
