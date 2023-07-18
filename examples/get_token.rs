@@ -1,7 +1,8 @@
 use netatmo_rs::{ClientCredentials, NetatmoClient, Scope};
 use std::env;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let client_id = env::var_os("NETATMO_CLIENT_ID")
         .expect("Environment variable 'NETATMO_CLIENT_ID' is not set.")
         .to_string_lossy()
@@ -20,13 +21,14 @@ fn main() {
         .to_string();
 
     let client_credentials = ClientCredentials {
-        client_id: &client_id,
-        client_secret: &client_secret,
+        client_id,
+        client_secret,
     };
     let scopes = vec![Scope::ReadStation];
 
-    let client = NetatmoClient::new(&client_credentials)
+    let client = NetatmoClient::new(client_credentials)
         .authenticate(&username, &password, &scopes)
+        .await
         .expect("Failed to authenticate");
     let token = client.token();
 

@@ -13,11 +13,11 @@ pub struct Token {
 }
 
 #[allow(clippy::implicit_hasher)]
-impl<'a> From<&'a UnauthenticatedClient<'a>> for HashMap<&str, &'a str> {
-    fn from(uc: &'a UnauthenticatedClient) -> HashMap<&'static str, &'a str> {
+impl From<&UnauthenticatedClient> for HashMap<String, String> {
+    fn from(uc: &UnauthenticatedClient) -> HashMap<String, String> {
         let mut m = HashMap::default();
-        m.insert("client_id", uc.client_credentials.client_id);
-        m.insert("client_secret", uc.client_credentials.client_secret);
+        m.insert("client_id".to_string(), uc.client_credentials.client_id.clone());
+        m.insert("client_secret".to_string(), uc.client_credentials.client_secret.clone());
 
         m
     }
@@ -70,7 +70,7 @@ impl Scope {
     }
 }
 
-pub(crate) fn get_token(
+pub async fn get_token(
     unauthenticated_client: &UnauthenticatedClient,
     username: &str,
     password: &str,
@@ -84,10 +84,12 @@ pub(crate) fn get_token(
         .join(".");
 
     let mut params: HashMap<_, _> = unauthenticated_client.into();
-    params.insert("username", username);
-    params.insert("password", password);
-    params.insert("grant_type", "password");
-    params.insert("scope", &scopes_str);
+    params.insert("username".to_string(), username.to_string());
+    params.insert("password".to_string(), password.to_string());
+    params.insert("grant_type".to_string(), "password".to_string());
+    params.insert("scope".to_string(), scopes_str);
 
-    unauthenticated_client.call("oauth2/token", "https://api.netatmo.com/oauth2/token", &params)
+    unauthenticated_client
+        .call("oauth2/token", "https://api.netatmo.com/oauth2/token", &params)
+        .await
 }

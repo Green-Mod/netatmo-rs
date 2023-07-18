@@ -110,32 +110,34 @@ pub struct Administrative {
     pub windunit: u64,
 }
 
-pub(crate) fn get_station_data(client: &AuthenticatedClient, device_id: &str) -> Result<StationData> {
-    let mut params: HashMap<&str, &str> = HashMap::default();
-    params.insert("device_id", device_id);
+pub async fn get_station_data(client: &AuthenticatedClient, device_id: &str) -> Result<StationData> {
+    let mut params: HashMap<String, String> = HashMap::default();
+    params.insert("device_id".to_string(), device_id.to_string());
 
-    client.call(
-        "get_station_data",
-        "https://api.netatmo.com/api/getstationsdata",
-        &mut params,
-    )
+    client
+        .call(
+            "get_station_data",
+            "https://api.netatmo.com/api/getstationsdata",
+            &mut params,
+        )
+        .await
 }
 
-pub(crate) fn get_homecoachs_data(client: &AuthenticatedClient, device_id: &str) -> Result<StationData> {
-    let mut params: HashMap<&str, &str> = HashMap::default();
-    params.insert("device_id", device_id);
+pub async fn get_homecoachs_data(client: &AuthenticatedClient, device_id: &str) -> Result<StationData> {
+    let mut params: HashMap<String, String> = HashMap::default();
+    params.insert("device_id".to_string(), device_id.to_string());
 
-    client.call(
-        "get_homecoachs_data",
-        "https://api.netatmo.com/api/gethomecoachsdata",
-        &mut params,
-    )
+    client
+        .call(
+            "get_homecoachs_data",
+            "https://api.netatmo.com/api/gethomecoachsdata",
+            &mut params,
+        )
+        .await
 }
 
 #[cfg(test)]
 mod test {
-    use spectral::prelude::*;
-
     use super::*;
 
     mod get_station_data {
@@ -240,9 +242,9 @@ mod test {
   "time_server": 1556451492
 }"#;
 
-            let station_data: ::std::result::Result<StationData, _> = serde_json::from_str(&json);
+            let station_data: std::result::Result<StationData, _> = serde_json::from_str(json);
 
-            assert_that(&station_data).is_ok();
+            assert!(&station_data.is_ok());
         }
     }
 
@@ -315,7 +317,7 @@ mod test {
 
             let homecoachs_data: ::std::result::Result<StationData, _> = serde_json::from_str(json);
 
-            assert_that(&homecoachs_data).is_ok();
+            assert!(&homecoachs_data.is_ok());
         }
     }
 }

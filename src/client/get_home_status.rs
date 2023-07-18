@@ -69,54 +69,56 @@ pub struct Room {
 }
 
 #[derive(Default)]
-pub struct Parameters<'a> {
-    home_id: Option<&'a str>,
-    device_types: Option<&'a [GatewayType]>,
+pub struct Parameters {
+    home_id: Option<String>,
+    device_types: Option<Vec<GatewayType>>,
 }
 
-impl<'a> Parameters<'a> {
+impl Parameters {
     pub fn new() -> Self {
         Parameters::default()
     }
 
-    pub fn home_id(self, home_id: &'a str) -> Self {
+    pub fn home_id(self, home_id: &str) -> Self {
         Parameters {
-            home_id: Some(home_id),
+            home_id: Some(home_id.to_string()),
             ..self
         }
     }
 
-    pub fn device_types(self, device_types: &'a [GatewayType]) -> Self {
+    pub fn device_types(self, device_types: &[GatewayType]) -> Self {
         Parameters {
-            device_types: Some(device_types),
+            device_types: Some(device_types.to_vec()),
             ..self
         }
     }
 }
 
 #[allow(clippy::implicit_hasher)]
-impl<'a> From<&'a Parameters<'a>> for HashMap<&str, String> {
-    fn from(p: &'a Parameters) -> HashMap<&'static str, String> {
+impl From<&Parameters> for HashMap<String, String> {
+    fn from(p: &Parameters) -> HashMap<String, String> {
         let mut map = HashMap::default();
-        if let Some(home_id) = p.home_id {
-            map.insert("home_id", home_id.to_string());
+        if let Some(home_id) = &p.home_id {
+            map.insert("home_id".to_string(), home_id.to_string());
         }
-        if let Some(device_types) = p.device_types {
+        if let Some(device_types) = &p.device_types {
             let device_types = device_types
                 .iter()
                 .map(|x| x.to_string())
                 .collect::<Vec<_>>()
                 .as_slice()
                 .join(",");
-            map.insert("device_types", device_types);
+            map.insert("device_types".to_string(), device_types);
         }
 
         map
     }
 }
 
-pub(crate) fn get_home_status(client: &AuthenticatedClient, parameters: &Parameters) -> Result<HomeStatus> {
-    let params: HashMap<&str, String> = parameters.into();
-    let mut params = params.iter().map(|(k, v)| (*k, v.as_ref())).collect();
-    client.call("get_home_status", "https://api.netatmo.com/api/homestatus", &mut params)
+pub async fn get_home_status(client: &AuthenticatedClient, parameters: &Parameters) -> Result<HomeStatus> {
+    let params: HashMap<String, String> = parameters.into();
+    let mut params = params.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+    client
+        .call("get_home_status", "https://api.netatmo.com/api/homestatus", &mut params)
+        .await
 }

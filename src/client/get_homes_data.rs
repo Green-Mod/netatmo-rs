@@ -120,31 +120,32 @@ pub struct User {
 }
 
 #[derive(Default)]
-pub struct Parameters<'a> {
-    home_id: Option<&'a str>,
-    gateway_types: Option<&'a [GatewayType]>,
+pub struct Parameters {
+    home_id: Option<String>,
+    gateway_types: Option<Vec<GatewayType>>,
 }
 
-impl<'a> Parameters<'a> {
+impl Parameters {
     pub fn new() -> Self {
         Parameters::default()
     }
 
-    pub fn home_id(self, home_id: &'a str) -> Self {
+    pub fn home_id(self, home_id: &str) -> Self {
         Parameters {
-            home_id: Some(home_id),
+            home_id: Some(home_id.to_string()),
             ..self
         }
     }
 
-    pub fn gateway_types(self, gateway_types: &'a [GatewayType]) -> Self {
+    pub fn gateway_types(self, gateway_types: &[GatewayType]) -> Self {
         Parameters {
-            gateway_types: Some(gateway_types),
+            gateway_types: Some(gateway_types.to_vec()),
             ..self
         }
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum GatewayType {
     ThermostatValve,
     Welcome,
@@ -163,28 +164,30 @@ impl fmt::Display for GatewayType {
 }
 
 #[allow(clippy::implicit_hasher)]
-impl<'a> From<&'a Parameters<'a>> for HashMap<&str, String> {
-    fn from(p: &'a Parameters) -> HashMap<&'static str, String> {
+impl From<&Parameters> for HashMap<String, String> {
+    fn from(p: &Parameters) -> HashMap<String, String> {
         let mut map = HashMap::default();
-        if let Some(home_id) = p.home_id {
-            map.insert("home_id", home_id.to_string());
+        if let Some(home_id) = &p.home_id {
+            map.insert("home_id".to_string(), home_id.to_string());
         }
-        if let Some(gateway_types) = p.gateway_types {
+        if let Some(gateway_types) = &p.gateway_types {
             let gateway_types = gateway_types
                 .iter()
                 .map(|x| x.to_string())
                 .collect::<Vec<_>>()
                 .as_slice()
                 .join(",");
-            map.insert("gateway_types", gateway_types);
+            map.insert("gateway_types".to_string(), gateway_types);
         }
 
         map
     }
 }
 
-pub(crate) fn get_homes_data(client: &AuthenticatedClient, parameters: &Parameters) -> Result<HomesData> {
-    let params: HashMap<&str, String> = parameters.into();
-    let mut params = params.iter().map(|(k, v)| (*k, v.as_ref())).collect();
-    client.call("get_homes_data", "https://api.netatmo.com/api/homesdata", &mut params)
+pub async fn get_homes_data(client: &AuthenticatedClient, parameters: &Parameters) -> Result<HomesData> {
+    let params: HashMap<String, String> = parameters.into();
+    let mut params = params.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+    client
+        .call("get_homes_data", "https://api.netatmo.com/api/homesdata", &mut params)
+        .await
 }

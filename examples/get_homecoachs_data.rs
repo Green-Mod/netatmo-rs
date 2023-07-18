@@ -1,7 +1,8 @@
-use netatmo_rs::{ClientCredentials, Netatmo, NetatmoClient, Scope};
+use netatmo_rs::{ClientCredentials, NetatmoClient, Scope};
 use std::env;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     env_logger::init();
 
     let client_id = env::var_os("NETATMO_CLIENT_ID")
@@ -26,15 +27,17 @@ fn main() {
         .to_string();
 
     let client_credentials = ClientCredentials {
-        client_id: &client_id,
-        client_secret: &client_secret,
+        client_id,
+        client_secret,
     };
     let scopes = vec![Scope::ReadHomecoach];
 
-    let homecoachs_data = NetatmoClient::new(&client_credentials)
+    let homecoachs_data = NetatmoClient::new(client_credentials)
         .authenticate(&username, &password, &scopes)
+        .await
         .expect("Failed to authenticate")
         .get_homecoachs_data(&device_id)
+        .await
         .expect("Failed to get home coach data");
 
     println!("{:#?}", homecoachs_data);

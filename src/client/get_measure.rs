@@ -3,24 +3,24 @@ use crate::{client::AuthenticatedClient, errors::Result};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{collections::HashMap, fmt, str::FromStr};
 
-pub struct Parameters<'a> {
-    device_id: &'a str,
-    module_id: &'a str,
+pub struct Parameters {
+    device_id: String,
+    module_id: String,
     scale: Scale,
-    types: &'a [Type],
+    types: Vec<Type>,
     date_begin: Option<usize>,
     date_end: Option<usize>,
     limit: Option<bool>,
     real_time: Option<bool>,
 }
 
-impl<'a> Parameters<'a> {
-    pub fn new(device_id: &'a str, scale: Scale, types: &'a [Type]) -> Self {
+impl Parameters {
+    pub fn new(device_id: &str, scale: Scale, types: &[Type]) -> Self {
         Parameters {
-            device_id,
-            module_id: device_id,
+            device_id: device_id.to_string(),
+            module_id: device_id.to_string(),
             scale,
-            types,
+            types: types.to_vec(),
             date_begin: None,
             date_end: None,
             limit: None,
@@ -28,12 +28,12 @@ impl<'a> Parameters<'a> {
         }
     }
 
-    pub fn with_module_id(device_id: &'a str, module_id: &'a str, scale: Scale, types: &'a [Type]) -> Self {
+    pub fn with_module_id(device_id: &str, module_id: &str, scale: Scale, types: &[Type]) -> Self {
         Parameters {
-            device_id,
-            module_id,
+            device_id: device_id.to_string(),
+            module_id: module_id.to_string(),
             scale,
-            types,
+            types: types.to_vec(),
             date_begin: None,
             date_end: None,
             limit: None,
@@ -95,6 +95,7 @@ impl fmt::Display for Scale {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum Type {
     Temperature,
     Humidity,
@@ -113,8 +114,8 @@ impl fmt::Display for Type {
 }
 
 #[allow(clippy::implicit_hasher)]
-impl<'a> From<&'a Parameters<'a>> for HashMap<&str, String> {
-    fn from(p: &'a Parameters) -> HashMap<&'static str, String> {
+impl From<&Parameters> for HashMap<String, String> {
+    fn from(p: &Parameters) -> HashMap<String, String> {
         let types = p
             .types
             .iter()
@@ -123,22 +124,22 @@ impl<'a> From<&'a Parameters<'a>> for HashMap<&str, String> {
             .as_slice()
             .join(",");
         let mut m = HashMap::default();
-        m.insert("device_id", p.device_id.to_string());
-        m.insert("module_id", p.module_id.to_string());
-        m.insert("scale", p.scale.to_string());
-        m.insert("type", types);
+        m.insert("device_id".to_string(), p.device_id.to_string());
+        m.insert("module_id".to_string(), p.module_id.to_string());
+        m.insert("scale".to_string(), p.scale.to_string());
+        m.insert("type".to_string(), types);
         if let Some(date_begin) = p.date_begin {
-            m.insert("date_begin", date_begin.to_string());
+            m.insert("date_begin".to_string(), date_begin.to_string());
         }
         if let Some(date_end) = p.date_end {
-            m.insert("date_end", date_end.to_string());
+            m.insert("date_end".to_string(), date_end.to_string());
         }
         if let Some(limit) = p.limit {
-            m.insert("limit", limit.to_string());
+            m.insert("limit".to_string(), limit.to_string());
         }
-        m.insert("optimize", "false".to_string());
+        m.insert("optimize".to_string(), "false".to_string());
         if let Some(real_time) = p.real_time {
-            m.insert("real_time", real_time.to_string());
+            m.insert("real_time".to_string(), real_time.to_string());
         }
 
         m
@@ -154,11 +155,13 @@ pub struct Measure {
 }
 
 // cf. https://dev.netatmo.com/resources/technical/reference/common/getmeasure
-pub fn get_measure(client: &AuthenticatedClient, parameters: &Parameters) -> Result<Measure> {
-    let params: HashMap<&str, String> = parameters.into();
-    let mut params = params.iter().map(|(k, v)| (*k, v.as_ref())).collect();
+pub async fn get_measure(client: &AuthenticatedClient, parameters: &Parameters) -> Result<Measure> {
+    let params: HashMap<String, String> = parameters.into();
+    let mut params = params.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
 
-    client.call("get_measure", "https://api.netatmo.com/api/getmeasure", &mut params)
+    client
+        .call("get_measure", "https://api.netatmo.com/api/getmeasure", &mut params)
+        .await
 }
 
 fn de_body_values<'de, D>(deserializer: D) -> ::std::result::Result<HashMap<usize, Vec<Option<f64>>>, D::Error>
