@@ -2,7 +2,6 @@
 
 This repo is the fork of [`netatmo-rs`](https://github.com/lukaspustina/netatmo-rs), which is a simple [Rust](https://rust-lang.org) library to talk to [Netatmo's API](https://dev.netatmo.com/resources/technical/introduction).
 
-
 ## So why the fork?
 
 The original library is not maintained anymore, and I needed to add some features to it. Also I revamped the code to use the latest Rust features and libraries.
@@ -13,7 +12,6 @@ This fork has the following changes:
 3. Drops the support to [Client credentials grant type](https://dev.netatmo.com/apidocumentation/oauth#client-credential), which is not supported by Netatmo anymore.
 
 This library assumes that the user already has an Access Token for the Netatmo API. If you don't have one, you can get it by following the steps [here](https://dev.netatmo.com/apidocumentation/oauth#authorization-code).
-
 
 ## Development
 
