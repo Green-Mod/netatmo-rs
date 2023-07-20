@@ -17,7 +17,7 @@ async fn main() {
 
     let m_params = GetHomesDataParameters::new()
         .home_id(&home_id) // to fetch for only one home
-        .gateway_types(&[GatewayType::ThermostatValve]); // to fetch for only a specific type of device
+        .gateway_types(&[GatewayType::NAPlug]); // to fetch for only a specific type of device
 
     let homes_data = NetatmoClient::with_token(access_token)
         .get_homes_data(&m_params)
