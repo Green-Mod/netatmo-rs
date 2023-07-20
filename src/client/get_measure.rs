@@ -177,3 +177,34 @@ where
 
     Ok(res)
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    mod get_measure {
+        use super::*;
+
+        #[test]
+        fn parse_response() {
+            let json = r#"{
+                "body": {
+                  "1623794400": [
+                    1429,
+                    1000
+                  ],
+                  "1626386400": [
+                    653
+                  ]
+                },
+                "status": "ok",
+                "time_exec": 0.039312124252319336,
+                "time_server": 1689866240
+              }"#;
+
+            let measure: std::result::Result<Measure, _> = serde_json::from_str(json);
+
+            assert!(&measure.is_ok());
+        }
+    }
+}

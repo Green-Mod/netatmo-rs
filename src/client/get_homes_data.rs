@@ -446,9 +446,9 @@ mod test {
                 "time_server": 1689864276
               }"#;
 
-            let station_data: std::result::Result<HomesData, _> = serde_json::from_str(json);
+            let homes_data: std::result::Result<HomesData, _> = serde_json::from_str(json);
 
-            assert!(&station_data.is_ok());
+            assert!(&homes_data.is_ok());
         }
     }
 }

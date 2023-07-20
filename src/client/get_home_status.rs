@@ -199,10 +199,10 @@ mod test {
                 "time_server": 1689865621,
                 "body": {
                   "home": {
-                    "id": "609f88d35d96af39490be591",
+                    "id": "...",
                     "modules": [
                       {
-                        "id": "70:ee:50:7d:6b:fa",
+                        "id": "...",
                         "type": "NSD",
                         "firmware_revision": 108,
                         "last_seen": 1622622024,
@@ -213,15 +213,15 @@ mod test {
                   "errors": [
                     {
                       "code": 6,
-                      "id": "70:ee:50:72:99:6a"
+                      "id": "..."
                     }
                   ]
                 }
               }"#;
 
-            let station_data: std::result::Result<HomeStatus, _> = serde_json::from_str(json);
+            let home_status: std::result::Result<HomeStatus, _> = serde_json::from_str(json);
 
-            assert!(&station_data.is_ok());
+            assert!(&home_status.is_ok());
         }
     }
 }
