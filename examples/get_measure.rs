@@ -1,5 +1,5 @@
-use netatmo_rs::{
-    get_measure::{Parameters, Scale, Type},
+use netatmo_rs::client::{
+    get_measure::{GetMeasureParameters, Scale, Type},
     NetatmoClient,
 };
 use std::env;
@@ -15,7 +15,7 @@ async fn main() {
         .to_string_lossy()
         .to_string();
 
-    let m_params = Parameters::new(&device_id, Scale::Max, &[Type::Humidity, Type::Temperature, Type::CO2]);
+    let m_params = GetMeasureParameters::new(&device_id, Scale::Max, &[Type::Humidity, Type::Temperature, Type::CO2]);
 
     let station_data = NetatmoClient::with_token(access_token)
         .get_measure(&m_params)

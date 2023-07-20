@@ -1,9 +1,8 @@
-use crate::{client::AuthenticatedClient, errors::Result};
-
+use crate::{client::NetatmoClient, errors::Result};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{collections::HashMap, fmt, str::FromStr};
 
-pub struct Parameters {
+pub struct GetMeasureParameters {
     device_id: String,
     module_id: String,
     scale: Scale,
@@ -14,9 +13,9 @@ pub struct Parameters {
     real_time: Option<bool>,
 }
 
-impl Parameters {
+impl GetMeasureParameters {
     pub fn new(device_id: &str, scale: Scale, types: &[Type]) -> Self {
-        Parameters {
+        GetMeasureParameters {
             device_id: device_id.to_string(),
             module_id: device_id.to_string(),
             scale,
@@ -29,7 +28,7 @@ impl Parameters {
     }
 
     pub fn with_module_id(device_id: &str, module_id: &str, scale: Scale, types: &[Type]) -> Self {
-        Parameters {
+        GetMeasureParameters {
             device_id: device_id.to_string(),
             module_id: module_id.to_string(),
             scale,
@@ -42,28 +41,28 @@ impl Parameters {
     }
 
     pub fn date_begin(self, date_begin: usize) -> Self {
-        Parameters {
+        GetMeasureParameters {
             date_begin: Some(date_begin),
             ..self
         }
     }
 
     pub fn date_end(self, date_end: usize) -> Self {
-        Parameters {
+        GetMeasureParameters {
             date_end: Some(date_end),
             ..self
         }
     }
 
     pub fn limit(self, limit: bool) -> Self {
-        Parameters {
+        GetMeasureParameters {
             limit: Some(limit),
             ..self
         }
     }
 
     pub fn real_time(self, real_time: bool) -> Self {
-        Parameters {
+        GetMeasureParameters {
             real_time: Some(real_time),
             ..self
         }
@@ -114,8 +113,8 @@ impl fmt::Display for Type {
 }
 
 #[allow(clippy::implicit_hasher)]
-impl From<&Parameters> for HashMap<String, String> {
-    fn from(p: &Parameters) -> HashMap<String, String> {
+impl From<&GetMeasureParameters> for HashMap<String, String> {
+    fn from(p: &GetMeasureParameters) -> HashMap<String, String> {
         let types = p
             .types
             .iter()
@@ -155,7 +154,7 @@ pub struct Measure {
 }
 
 // cf. https://dev.netatmo.com/resources/technical/reference/common/getmeasure
-pub async fn get_measure(client: &AuthenticatedClient, parameters: &Parameters) -> Result<Measure> {
+pub async fn get_measure(client: &NetatmoClient, parameters: &GetMeasureParameters) -> Result<Measure> {
     let params: HashMap<String, String> = parameters.into();
     let mut params = params.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
 

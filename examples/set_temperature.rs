@@ -1,5 +1,5 @@
-use netatmo_rs::{
-    set_room_thermpoint::{Mode, Parameters},
+use netatmo_rs::client::{
+    set_room_thermpoint::{Mode, SetRoomThermpointParameters},
     NetatmoClient,
 };
 use std::env;
@@ -19,7 +19,7 @@ async fn main() {
         .to_string_lossy()
         .to_string();
 
-    let m_params = Parameters::new(&home_id, &room_id, Mode::Home);
+    let m_params = SetRoomThermpointParameters::new(&home_id, &room_id, Mode::Home);
 
     NetatmoClient::with_token(access_token)
         .set_room_thermpoint(&m_params)

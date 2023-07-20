@@ -1,4 +1,4 @@
-use netatmo_rs::NetatmoClient;
+use netatmo_rs::client::NetatmoClient;
 use std::env;
 
 #[tokio::main]

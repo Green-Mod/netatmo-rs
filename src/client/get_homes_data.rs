@@ -1,18 +1,18 @@
-use crate::{client::AuthenticatedClient, errors::Result};
+use crate::{client::NetatmoClient, errors::Result};
 
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HomesData {
-    pub body: Body,
+    pub body: HomesDataBody,
     pub status: String,
     pub time_exec: f64,
     pub time_server: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Body {
+pub struct HomesDataBody {
     pub homes: Vec<Home>,
     pub user: User,
 }
@@ -120,25 +120,25 @@ pub struct User {
 }
 
 #[derive(Default)]
-pub struct Parameters {
+pub struct GetHomesDataParameters {
     home_id: Option<String>,
     gateway_types: Option<Vec<GatewayType>>,
 }
 
-impl Parameters {
+impl GetHomesDataParameters {
     pub fn new() -> Self {
-        Parameters::default()
+        GetHomesDataParameters::default()
     }
 
     pub fn home_id(self, home_id: &str) -> Self {
-        Parameters {
+        GetHomesDataParameters {
             home_id: Some(home_id.to_string()),
             ..self
         }
     }
 
     pub fn gateway_types(self, gateway_types: &[GatewayType]) -> Self {
-        Parameters {
+        GetHomesDataParameters {
             gateway_types: Some(gateway_types.to_vec()),
             ..self
         }
@@ -164,8 +164,8 @@ impl fmt::Display for GatewayType {
 }
 
 #[allow(clippy::implicit_hasher)]
-impl From<&Parameters> for HashMap<String, String> {
-    fn from(p: &Parameters) -> HashMap<String, String> {
+impl From<&GetHomesDataParameters> for HashMap<String, String> {
+    fn from(p: &GetHomesDataParameters) -> HashMap<String, String> {
         let mut map = HashMap::default();
         if let Some(home_id) = &p.home_id {
             map.insert("home_id".to_string(), home_id.to_string());
@@ -184,7 +184,7 @@ impl From<&Parameters> for HashMap<String, String> {
     }
 }
 
-pub async fn get_homes_data(client: &AuthenticatedClient, parameters: &Parameters) -> Result<HomesData> {
+pub async fn get_homes_data(client: &NetatmoClient, parameters: &GetHomesDataParameters) -> Result<HomesData> {
     let params: HashMap<String, String> = parameters.into();
     let mut params = params.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
     client

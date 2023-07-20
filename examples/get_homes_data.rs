@@ -1,5 +1,5 @@
-use netatmo_rs::{
-    get_homes_data::{GatewayType, Parameters},
+use netatmo_rs::client::{
+    get_homes_data::{GatewayType, GetHomesDataParameters},
     NetatmoClient,
 };
 use std::env;
@@ -15,7 +15,7 @@ async fn main() {
         .to_string_lossy()
         .to_string();
 
-    let m_params = Parameters::new()
+    let m_params = GetHomesDataParameters::new()
         .home_id(&home_id) // to fetch for only one home
         .gateway_types(&[GatewayType::ThermostatValve]); // to fetch for only a specific type of device
 

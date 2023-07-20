@@ -2,18 +2,18 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{client::AuthenticatedClient, errors::Result};
+use crate::{client::NetatmoClient, errors::Result};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StationData {
-    pub body: Body,
+    pub body: StationDataBody,
     pub status: String,
     pub time_exec: f64,
     pub time_server: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Body {
+pub struct StationDataBody {
     pub devices: Vec<Device>,
     pub user: User,
 }
@@ -110,7 +110,7 @@ pub struct Administrative {
     pub windunit: u64,
 }
 
-pub async fn get_station_data(client: &AuthenticatedClient, device_id: &str) -> Result<StationData> {
+pub async fn get_station_data(client: &NetatmoClient, device_id: &str) -> Result<StationData> {
     let mut params: HashMap<String, String> = HashMap::default();
     params.insert("device_id".to_string(), device_id.to_string());
 
@@ -123,7 +123,7 @@ pub async fn get_station_data(client: &AuthenticatedClient, device_id: &str) -> 
         .await
 }
 
-pub async fn get_homecoachs_data(client: &AuthenticatedClient, device_id: &str) -> Result<StationData> {
+pub async fn get_homecoachs_data(client: &NetatmoClient, device_id: &str) -> Result<StationData> {
     let mut params: HashMap<String, String> = HashMap::default();
     params.insert("device_id".to_string(), device_id.to_string());
 

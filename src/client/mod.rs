@@ -9,29 +9,33 @@ use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use std::collections::HashMap;
 
+use self::{
+    get_home_status::{get_home_status, GetHomeStatusParameters},
+    get_homes_data::{get_homes_data, GetHomesDataParameters},
+    get_measure::{get_measure, GetMeasureParameters},
+    get_station_data::{get_homecoachs_data, get_station_data},
+    set_room_thermpoint::{set_room_thermpoint, SetRoomThermpointParameters, SetRoomThermpointResponse},
+};
+
 pub mod get_home_status;
 pub mod get_homes_data;
 pub mod get_measure;
 pub mod get_station_data;
 pub mod set_room_thermpoint;
 
-pub struct NetatmoClient {}
-
-impl NetatmoClient {
-    pub fn with_token(access_token: String) -> AuthenticatedClient {
-        AuthenticatedClient {
-            token: access_token,
-            http: Client::new(),
-        }
-    }
-}
-
-pub struct AuthenticatedClient {
+pub struct NetatmoClient {
     token: String,
     http: Client,
 }
 
-impl AuthenticatedClient {
+impl NetatmoClient {
+    pub fn with_token(access_token: String) -> Self {
+        Self {
+            token: access_token,
+            http: Client::new(),
+        }
+    }
+
     pub fn token(&self) -> &String {
         &self.token
     }
@@ -106,31 +110,31 @@ async fn general_err_handler(response: Response, name: String, expected_status: 
     }
 }
 
-impl AuthenticatedClient {
-    pub async fn get_homes_data(&self, parameters: &get_homes_data::Parameters) -> Result<HomesData> {
-        get_homes_data::get_homes_data(self, parameters).await
+impl NetatmoClient {
+    pub async fn get_homes_data(&self, parameters: &GetHomesDataParameters) -> Result<HomesData> {
+        get_homes_data(self, parameters).await
     }
 
-    pub async fn get_home_status(&self, parameters: &get_home_status::Parameters) -> Result<HomeStatus> {
-        get_home_status::get_home_status(self, parameters).await
+    pub async fn get_home_status(&self, parameters: &GetHomeStatusParameters) -> Result<HomeStatus> {
+        get_home_status(self, parameters).await
     }
 
     pub async fn get_station_data(&self, device_id: &str) -> Result<StationData> {
-        get_station_data::get_station_data(self, device_id).await
+        get_station_data(self, device_id).await
     }
 
     pub async fn get_homecoachs_data(&self, device_id: &str) -> Result<StationData> {
-        get_station_data::get_homecoachs_data(self, device_id).await
+        get_homecoachs_data(self, device_id).await
     }
 
-    pub async fn get_measure(&self, parameters: &get_measure::Parameters) -> Result<Measure> {
-        get_measure::get_measure(self, parameters).await
+    pub async fn get_measure(&self, parameters: &GetMeasureParameters) -> Result<Measure> {
+        get_measure(self, parameters).await
     }
 
     pub async fn set_room_thermpoint(
         &self,
-        parameters: &set_room_thermpoint::Parameters,
-    ) -> Result<set_room_thermpoint::Response> {
-        set_room_thermpoint::set_room_thermpoint(self, parameters).await
+        parameters: &SetRoomThermpointParameters,
+    ) -> Result<SetRoomThermpointResponse> {
+        set_room_thermpoint(self, parameters).await
     }
 }
