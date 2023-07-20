@@ -100,7 +100,6 @@ pub struct Zone {
     pub rooms: Option<Vec<RoomTemp>>,
 }
 
-/// type of the zone (0 = day, 1 = night, 2 = away, 3 = frost guard, 4 = custom, 5 = eco, 8 = comfort)
 #[derive(Default, Debug, Clone, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ZoneType {
