@@ -3,7 +3,7 @@ use crate::{
     client::NetatmoClient,
     errors::{NetatmoError, Result},
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_repr::*;
 use std::{collections::HashMap, fmt, str::FromStr};
 
@@ -65,7 +65,9 @@ pub struct Room {
     pub therm_measured_temperature: f64,
     pub therm_setpoint_temperature: f64,
     pub therm_setpoint_mode: ThermSetpointMode,
+    #[serde(deserialize_with = "de_setpoint_timestamp")]
     pub therm_setpoint_start_time: i64,
+    #[serde(deserialize_with = "de_setpoint_timestamp")]
     pub therm_setpoint_end_time: i64,
     pub anticipating: bool,
     pub open_window: bool,
@@ -100,6 +102,10 @@ impl FromStr for ThermSetpointMode {
     type Err = NetatmoError;
 
     fn from_str(s: &str) -> Result<Self> {
+        // Sometimes the API returns a comma-separated list of modes, e.g. "manual, away"
+        // We only care about the first one
+        let s = s.split(", ").next().unwrap_or(s);
+
         match s.to_lowercase().as_str() {
             "manual" => Ok(ThermSetpointMode::Manual),
             "max" => Ok(ThermSetpointMode::Max),
@@ -108,6 +114,30 @@ impl FromStr for ThermSetpointMode {
             "away" => Ok(ThermSetpointMode::Away),
             "hg" => Ok(ThermSetpointMode::Hg),
             _ => Err(NetatmoError::FailedToReadResponse),
+        }
+    }
+}
+
+fn de_setpoint_timestamp<'de, D>(deserializer: D) -> ::std::result::Result<i64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    // The API should return an integer
+    // Sometimes the API returns a comma-separated list of timestamps, e.g. "1622622024, 1622622024"
+    // We only care about the first one
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum SetpointTimestamp {
+        Integer(i64),
+        String(String),
+    }
+
+    let timestamp_value = SetpointTimestamp::deserialize(deserializer)?;
+    match timestamp_value {
+        SetpointTimestamp::Integer(i) => Ok(i),
+        SetpointTimestamp::String(s) => {
+            let s = s.split(", ").next().unwrap_or(&s);
+            i64::from_str(s).map_err(serde::de::Error::custom)
         }
     }
 }
