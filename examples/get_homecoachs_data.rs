@@ -14,7 +14,7 @@ async fn main() {
         .to_string_lossy()
         .to_string();
 
-    let homecoachs_data = NetatmoClient::with_token(access_token)
+    let homecoachs_data = NetatmoClient::with_token(&access_token)
         .get_homecoachs_data(&device_id)
         .await
         .expect("Failed to get home coach data");

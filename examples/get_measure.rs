@@ -17,7 +17,7 @@ async fn main() {
 
     let m_params = GetMeasureParameters::new(&device_id, Scale::Max, &[Type::Humidity, Type::Temperature, Type::CO2]);
 
-    let station_data = NetatmoClient::with_token(access_token)
+    let station_data = NetatmoClient::with_token(&access_token)
         .get_measure(&m_params)
         .await
         .expect("Failed to get measure");

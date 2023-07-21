@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
-use serde::{Deserialize, Serialize};
-
 use crate::{client::NetatmoClient, errors::Result};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StationData {

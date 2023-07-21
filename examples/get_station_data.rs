@@ -14,7 +14,7 @@ async fn main() {
         .to_string_lossy()
         .to_string();
 
-    let station_data = NetatmoClient::with_token(access_token)
+    let station_data = NetatmoClient::with_token(&access_token)
         .get_station_data(&device_id)
         .await
         .expect("Failed to get station data");

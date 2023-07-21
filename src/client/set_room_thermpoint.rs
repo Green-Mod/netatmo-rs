@@ -1,6 +1,9 @@
-use crate::{client::NetatmoClient, errors::Result};
+use crate::{
+    client::NetatmoClient,
+    errors::{NetatmoError, Result},
+};
 use serde::Deserialize;
-use std::{collections::HashMap, fmt};
+use std::{collections::HashMap, fmt, str::FromStr};
 
 pub struct SetRoomThermpointParameters {
     home_id: String,
@@ -12,6 +15,7 @@ pub struct SetRoomThermpointParameters {
 
 pub enum Mode {
     Manual,
+    Max,
     Home,
 }
 
@@ -19,9 +23,23 @@ impl fmt::Display for Mode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let s = match self {
             Mode::Manual => "manual",
+            Mode::Max => "max",
             Mode::Home => "home",
         };
         write!(f, "{}", s)
+    }
+}
+
+impl FromStr for Mode {
+    type Err = NetatmoError;
+
+    fn from_str(s: &str) -> Result<Self> {
+        match s {
+            "manual" => Ok(Mode::Manual),
+            "max" => Ok(Mode::Max),
+            "home" => Ok(Mode::Home),
+            _ => Err(NetatmoError::JsonDeserializationFailed),
+        }
     }
 }
 

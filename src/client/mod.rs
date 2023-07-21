@@ -1,3 +1,10 @@
+use self::{
+    get_home_status::{get_home_status, GetHomeStatusParameters},
+    get_homes_data::{get_homes_data, GetHomesDataParameters},
+    get_measure::{get_measure, GetMeasureParameters},
+    get_station_data::{get_homecoachs_data, get_station_data},
+    set_room_thermpoint::{set_room_thermpoint, SetRoomThermpointParameters, SetRoomThermpointResponse},
+};
 use crate::errors::{NetatmoError, Result};
 use get_home_status::HomeStatus;
 use get_homes_data::HomesData;
@@ -8,14 +15,6 @@ use reqwest::{Client, Response, StatusCode};
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use std::collections::HashMap;
-
-use self::{
-    get_home_status::{get_home_status, GetHomeStatusParameters},
-    get_homes_data::{get_homes_data, GetHomesDataParameters},
-    get_measure::{get_measure, GetMeasureParameters},
-    get_station_data::{get_homecoachs_data, get_station_data},
-    set_room_thermpoint::{set_room_thermpoint, SetRoomThermpointParameters, SetRoomThermpointResponse},
-};
 
 pub mod get_home_status;
 pub mod get_homes_data;
@@ -29,9 +28,9 @@ pub struct NetatmoClient {
 }
 
 impl NetatmoClient {
-    pub fn with_token(access_token: String) -> Self {
+    pub fn with_token(access_token: &str) -> Self {
         Self {
-            token: access_token,
+            token: access_token.to_string(),
             http: Client::new(),
         }
     }

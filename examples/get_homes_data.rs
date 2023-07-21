@@ -19,7 +19,7 @@ async fn main() {
         .home_id(&home_id) // to fetch for only one home
         .gateway_types(&[GatewayType::NAPlug]); // to fetch for only a specific type of device
 
-    let homes_data = NetatmoClient::with_token(access_token)
+    let homes_data = NetatmoClient::with_token(&access_token)
         .get_homes_data(&m_params)
         .await
         .expect("Failed to get homes data");

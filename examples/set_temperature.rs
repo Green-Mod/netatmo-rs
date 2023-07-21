@@ -21,7 +21,7 @@ async fn main() {
 
     let m_params = SetRoomThermpointParameters::new(&home_id, &room_id, Mode::Home);
 
-    NetatmoClient::with_token(access_token)
+    NetatmoClient::with_token(&access_token)
         .set_room_thermpoint(&m_params)
         .await
         .expect("Failed to set home thermpoint");
