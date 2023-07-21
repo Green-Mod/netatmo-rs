@@ -158,8 +158,9 @@ impl GetHomesDataParameters {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum GatewayType {
+    #[default]
     NAPlug,
     OTH,
     BNS,

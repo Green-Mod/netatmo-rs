@@ -2,7 +2,7 @@ use crate::{
     client::NetatmoClient,
     errors::{NetatmoError, Result},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt, str::FromStr};
 
 pub struct SetRoomThermpointParameters {
@@ -13,7 +13,9 @@ pub struct SetRoomThermpointParameters {
     endtime: Option<usize>,
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Mode {
+    #[default]
     Manual,
     Max,
     Home,

@@ -69,7 +69,9 @@ impl GetMeasureParameters {
     }
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Scale {
+    #[default]
     Max,
     Min30,
     Hour1,
@@ -94,8 +96,9 @@ impl fmt::Display for Scale {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Type {
+    #[default]
     Temperature,
     Humidity,
     CO2,
