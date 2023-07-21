@@ -51,23 +51,6 @@ impl SetRoomThermpointParameters {
     }
 }
 
-pub enum Type {
-    Temperature,
-    Humidity,
-    CO2,
-}
-
-impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match self {
-            Type::Temperature => "Temperature",
-            Type::Humidity => "Humidity",
-            Type::CO2 => "CO2",
-        };
-        write!(f, "{}", s)
-    }
-}
-
 #[allow(clippy::implicit_hasher)]
 impl From<&SetRoomThermpointParameters> for HashMap<String, String> {
     fn from(p: &SetRoomThermpointParameters) -> HashMap<String, String> {

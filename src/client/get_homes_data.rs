@@ -40,17 +40,6 @@ pub enum ThermMode {
     FrostGuard,
 }
 
-impl fmt::Display for ThermMode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match self {
-            ThermMode::Schedule => "schedule",
-            ThermMode::Away => "away",
-            ThermMode::FrostGuard => "hg",
-        };
-        write!(f, "{}", s)
-    }
-}
-
 impl FromStr for ThermMode {
     type Err = NetatmoError;
 

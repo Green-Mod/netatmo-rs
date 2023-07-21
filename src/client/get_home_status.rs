@@ -5,7 +5,7 @@ use crate::{
 };
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_repr::*;
-use std::{collections::HashMap, fmt, str::FromStr};
+use std::{collections::HashMap, str::FromStr};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HomeStatus {
@@ -58,6 +58,31 @@ pub struct Module {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ModuleBatteryState {
+    #[default]
+    VeryLow,
+    Low,
+    Medium,
+    High,
+    Full,
+}
+
+impl FromStr for ModuleBatteryState {
+    type Err = NetatmoError;
+
+    fn from_str(s: &str) -> Result<Self> {
+        match s.to_lowercase().as_str() {
+            "very_low" => Ok(ModuleBatteryState::VeryLow),
+            "low" => Ok(ModuleBatteryState::Low),
+            "medium" => Ok(ModuleBatteryState::Medium),
+            "high" => Ok(ModuleBatteryState::High),
+            "full" => Ok(ModuleBatteryState::Full),
+            _ => Err(NetatmoError::FailedToReadResponse),
+        }
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Room {
     pub id: String,
     pub reachable: bool,
@@ -82,20 +107,6 @@ pub enum ThermSetpointMode {
     Schedule,
     Away,
     Hg,
-}
-
-impl fmt::Display for ThermSetpointMode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match self {
-            ThermSetpointMode::Manual => "manual",
-            ThermSetpointMode::Max => "max",
-            ThermSetpointMode::Off => "off",
-            ThermSetpointMode::Schedule => "schedule",
-            ThermSetpointMode::Away => "away",
-            ThermSetpointMode::Hg => "hg",
-        };
-        write!(f, "{}", s)
-    }
 }
 
 impl FromStr for ThermSetpointMode {
